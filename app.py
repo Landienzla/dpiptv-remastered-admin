@@ -20,7 +20,7 @@ def home_page():
     return "<h1>Hello From Flask</h1>"
 
 
-@app.route('/admin/login')
+@app.route('/users')
 def users():
     users = []
     users_fromdb = mongo.db.users.find()
@@ -35,13 +35,14 @@ def users():
 @app.route('/login', methods=['POST'])
 def user_login():
     requestData = json.loads(request.data)
+    # print(requestData)
     # user = {"email": request.data["email"],
     #         "password": request.data["password"]}
-    email = requestData["email"]
+    username = requestData["username"]
     password = requestData["password"]
-    user = db.users.find_one({"email": email})
+    user = db.users.find_one({"username": username})
     if password == user["password"]:
-        res = make_response(json.dumps(user, default=str))
+        res = make_response(json.dumps(user['_id'], default=str))
         res.mimetype = 'application/json'
         print(res.data)
         return res, 200
@@ -58,12 +59,23 @@ def userInfo(id):
     return user["username"],200
 
 
-@app.route('/users/add', methods=["POST", ])
-def add_user():
+@app.route('/products/add', methods=["POST", ])
+def add_product():
     requestData = json.loads(request.data)
-    user = {"username": requestData["username"],
-            "email": requestData["email"],
-            "password": requestData["password"]}
+    product = {"duration": requestData["duration"],
+            "cost": requestData["cost"],
+            "buynowLink": requestData["buynowLink"],
+            "btcLink": requestData["btclink"]}
     # print(request.data)
-    db.users.insert_one(user)
-    return "User Added Successfuly", 200
+    db.products.insert_one(product)
+    return "Product Added Successfuly", 200
+@app.route('/products')
+def product_list():
+    products = []
+    productsDB = mongo.db.products.find()
+    for i in productsDB:
+        products.append(i)
+    res = make_response(json.dumps(products, default=str))
+    res.mimetype = 'application/json'
+    # f"{json.dumps(users, default=str)}"
+    return res
