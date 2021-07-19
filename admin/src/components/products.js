@@ -32,7 +32,7 @@ export default class products extends Component {
                     <h2>{product.cost}</h2>
                   </b>{" "}
                 </p>
-                <p>One Connection</p>
+                <p>{product.productCategory}</p>
                 <div className="border border-info m-3 w-25 mx-auto" />
                 <p>
                   <Button className="bg-info" href={product.buynowLink}>Buy Now - {product.buynowLink} -</Button>

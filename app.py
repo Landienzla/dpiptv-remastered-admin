@@ -65,7 +65,8 @@ def add_product():
     product = {"duration": requestData["duration"],
             "cost": requestData["cost"],
             "buynowLink": requestData["buynowLink"],
-            "btcLink": requestData["btclink"]}
+            "btcLink": requestData["btclink"],
+            "productCategory": requestData["productCategory"]}
     # print(request.data)
     db.products.insert_one(product)
     return "Product Added Successfuly", 200
