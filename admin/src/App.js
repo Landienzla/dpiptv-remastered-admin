@@ -11,7 +11,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 function App() {
   const [user, userCheck] = useState(window.localStorage.getItem("user"));
   return (
-    <div className="App">
+    <div className="App bg-light">
       <Router>
         <Switch>
           <Route path="/login" component={Login} />

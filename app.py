@@ -6,8 +6,9 @@ from flask_pymongo import PyMongo
 from flask_cors import CORS
 import json
 import bson
-
+import copy
 import pymongo
+from pymongo.message import update
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb+srv://landienzla:5513@cluster0.irgw0.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 CORS(app)
@@ -44,7 +45,7 @@ def user_login():
     if password == user["password"]:
         res = make_response(json.dumps(user['_id'], default=str))
         res.mimetype = 'application/json'
-        print(res.data)
+        # print(res.data)
         return res, 200
     else:
         return "False", 404
@@ -55,21 +56,23 @@ def userInfo(id):
     user = db.users.find_one({"_id": bson.ObjectId(oid=str(id))})
     # res = make_response(json.dumps(user, default=str))
     # res.mimetype = 'application/json'
-    print(user)
-    return user["username"],200
+    # print(user)
+    return user["username"], 200
 
 
 @app.route('/products/add', methods=["POST", ])
 def add_product():
     requestData = json.loads(request.data)
     product = {"duration": requestData["duration"],
-            "cost": requestData["cost"],
-            "buynowLink": requestData["buynowLink"],
-            "btcLink": requestData["btclink"],
-            "productCategory": requestData["productCategory"]}
+               "cost": requestData["cost"],
+               "buynowLink": requestData["buynowLink"],
+               "btcLink": requestData["btclink"],
+               "productCategory": requestData["productCategory"]}
     # print(request.data)
     db.products.insert_one(product)
     return "Product Added Successfuly", 200
+
+
 @app.route('/products')
 def product_list():
     products = []
@@ -80,3 +83,22 @@ def product_list():
     res.mimetype = 'application/json'
     # f"{json.dumps(users, default=str)}"
     return res
+
+
+@app.route('/products/<id>', methods=["PUT", ])
+def update_product(id):
+    requestData = json.loads(request.data)
+    productDB = db.products.find_one({"_id": bson.ObjectId(oid=str(id))})
+    for key in requestData.copy():
+        if requestData[key] == '':
+            requestData[key] = None
+            requestData.pop(key, None)
+        db.products.update({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
+            key: requestData.copy()[key]
+        }})
+    print(requestData)
+    # for key, value in requestData.items():
+    #     db.products.save({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
+    #         key: requestData[key]
+    #     }})
+    return "Product Updated Successfully", 200

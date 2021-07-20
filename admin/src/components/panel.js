@@ -14,9 +14,20 @@ import AddProduct from "./addProduct";
 import UpdateProduct from "./updateProduct";
 export default function Panel(props) {
   const [username, usernameCheck] = useState();
+  const [productList, productListChecker] = useState(0);
+  const [productListButton, openProductsChecker] = useState("Open")
 
   //   console.log(window.localStorage.getItem("user"));
-
+  const showProductList = () =>{
+    if(productList === 1){
+      productListChecker(0)
+      openProductsChecker("Open")
+    }
+    else{
+      productListChecker(1)
+      openProductsChecker("Close")
+    }
+  }
   axios
     .get(`http://127.0.0.1:5000/users/${props.user}`)
     .then((resp) => usernameCheck(resp.data));
@@ -43,13 +54,15 @@ export default function Panel(props) {
           <AddProduct />
         </Col>
         <Col>
-        <UpdateProduct/>
+          <UpdateProduct />
         </Col>
       </Row>
       <Row>
         <Col>
-          <h2>Product List</h2>
-          <Products />
+          <Button onClick={showProductList}>
+            {productListButton} Product List
+          </Button>
+          {productList ? <Products /> : null}
         </Col>
       </Row>
     </Container>
