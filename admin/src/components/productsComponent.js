@@ -2,7 +2,9 @@ import axios from "axios";
 import React, { Component } from "react";
 import { Col, Container, Button, Row } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-export default class products extends Component {
+import AddProduct from "./addProduct";
+import UpdateProduct from "./updateProduct";
+export default class productsComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -18,6 +20,11 @@ export default class products extends Component {
   render() {
     return (
       <div>
+          <Container>
+              <Row>
+              <Col> <AddProduct/></Col>
+              <Col><UpdateProduct/></Col></Row>
+             
       <h2 className="m-3"> Products For 1 Device</h2>
         <Row>
 
@@ -100,6 +107,7 @@ export default class products extends Component {
               </Col>
             ))}
         </Row>
+        </Container>
       </div>
     );
   }

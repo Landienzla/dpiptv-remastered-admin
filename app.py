@@ -139,3 +139,24 @@ def get_testlink():
     }
     db.testlinks.insert_one(testlinkData)
     return "Successfull" , 200
+@app.route("/installations")
+def installations():
+    installations = []
+    installationsDB = db.installations.find()
+    for i in installationsDB:
+        installations.append(i)
+    res = make_response(json.dumps(installations, default=str))
+    res.mimetype = 'application/json'
+    return res
+    
+@app.route('/installation/add', methods=["POST"])
+def add_installation():
+    requestData = json.loads(request.data)
+    installationData = {
+        "Name": requestData["Name"],
+        "videoLink": requestData["videoLink"],
+        "imageLink": requestData["imageLink"],
+        "createdAt": datetime.datetime.now()
+    }
+    db.installations.insert_one(installationData)
+    return "Successfull", 200
