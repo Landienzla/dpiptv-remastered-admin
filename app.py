@@ -8,6 +8,7 @@ import json
 import bson
 import copy
 import pymongo
+import datetime
 from pymongo.message import update
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb+srv://landienzla:5513@cluster0.irgw0.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
@@ -60,6 +61,17 @@ def userInfo(id):
     return user["username"], 200
 
 
+@app.route('/products')
+def product_list():
+    products = []
+    productsDB = mongo.db.products.find()
+    for i in productsDB:
+        products.append(i)
+    res = make_response(json.dumps(products, default=str))
+    res.mimetype = 'application/json'
+    # f"{json.dumps(users, default=str)}"
+    return res
+
 @app.route('/products/add', methods=["POST", ])
 def add_product():
     requestData = json.loads(request.data)
@@ -73,32 +85,57 @@ def add_product():
     return "Product Added Successfuly", 200
 
 
-@app.route('/products')
-def product_list():
-    products = []
-    productsDB = mongo.db.products.find()
-    for i in productsDB:
-        products.append(i)
-    res = make_response(json.dumps(products, default=str))
-    res.mimetype = 'application/json'
-    # f"{json.dumps(users, default=str)}"
-    return res
-
-
 @app.route('/products/<id>', methods=["PUT", ])
 def update_product(id):
     requestData = json.loads(request.data)
     productDB = db.products.find_one({"_id": bson.ObjectId(oid=str(id))})
     for key in requestData.copy():
-        if requestData[key] == '':
+        if requestData[key] == '' or requestData[key] == " ":
             requestData[key] = None
             requestData.pop(key, None)
+    for key in requestData.copy():
         db.products.update({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
-            key: requestData.copy()[key]
+            key: requestData[key]
         }})
-    print(requestData)
     # for key, value in requestData.items():
     #     db.products.save({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
     #         key: requestData[key]
     #     }})
     return "Product Updated Successfully", 200
+
+@app.route('/support/requests')
+def support_requests():
+    requests = []
+    requestsDB = db.supportRequests.find()
+    for i in requestsDB:
+        requests.append(i)
+    res = make_response(json.dumps(requests, default=str))
+    res.mimetype = 'application/json'
+    return res
+
+@app.route('/support/request', methods=["POST"])
+def request_support():
+    requestData = json.loads(request.data)
+    supportRequest = {
+        "Name": requestData["Name"],
+        "Email": requestData["Email"],
+        "Reason": requestData["Reason"],
+        "Message": requestData["Message"],
+        "createdAt": datetime.datetime.now(),
+        "Status" : "Waiting"
+    }
+    db.supportRequests.insert_one(supportRequest)
+    return "request support", 200
+
+@app.route('/testlink/get', methods=["POST"])
+def get_testlink():
+    requestData = json.loads(request.data)
+    testlinkData = {
+        "Name": requestData["Name"],
+        "Email": requestData["Email"],
+        "Device": requestData["Device"],
+        "MAC": requestData["MAC"],
+        "createdAt": datetime.datetime.now()
+    }
+    db.testlinks.insert_one(testlinkData)
+    return "Successfull" , 200
