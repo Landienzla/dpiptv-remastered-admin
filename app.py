@@ -72,6 +72,7 @@ def product_list():
     # f"{json.dumps(users, default=str)}"
     return res
 
+
 @app.route('/products/add', methods=["POST", ])
 def add_product():
     requestData = json.loads(request.data)
@@ -88,7 +89,6 @@ def add_product():
 @app.route('/products/<id>', methods=["PUT", ])
 def update_product(id):
     requestData = json.loads(request.data)
-    productDB = db.products.find_one({"_id": bson.ObjectId(oid=str(id))})
     for key in requestData.copy():
         if requestData[key] == '' or requestData[key] == " ":
             requestData[key] = None
@@ -103,6 +103,7 @@ def update_product(id):
     #     }})
     return "Product Updated Successfully", 200
 
+
 @app.route('/support/requests')
 def support_requests():
     requests = []
@@ -113,6 +114,7 @@ def support_requests():
     res.mimetype = 'application/json'
     return res
 
+
 @app.route('/support/request', methods=["POST"])
 def request_support():
     requestData = json.loads(request.data)
@@ -122,10 +124,11 @@ def request_support():
         "Reason": requestData["Reason"],
         "Message": requestData["Message"],
         "createdAt": datetime.datetime.now(),
-        "Status" : "Waiting"
+        "Status": "Waiting"
     }
     db.supportRequests.insert_one(supportRequest)
     return "request support", 200
+
 
 @app.route('/testlink/get', methods=["POST"])
 def get_testlink():
@@ -138,7 +141,9 @@ def get_testlink():
         "createdAt": datetime.datetime.now()
     }
     db.testlinks.insert_one(testlinkData)
-    return "Successfull" , 200
+    return "Successfull", 200
+
+
 @app.route("/installations")
 def installations():
     installations = []
@@ -148,7 +153,8 @@ def installations():
     res = make_response(json.dumps(installations, default=str))
     res.mimetype = 'application/json'
     return res
-    
+
+
 @app.route('/installation/add', methods=["POST"])
 def add_installation():
     requestData = json.loads(request.data)
@@ -160,3 +166,25 @@ def add_installation():
     }
     db.installations.insert_one(installationData)
     return "Successfull", 200
+
+
+@app.route('/installations/<id>/update', methods=["PUT"])
+def update_installation(id):
+    requestData = json.loads(request.data)
+    for key in requestData.copy():
+        if requestData[key] == '' or requestData[key] == " ":
+            requestData[key] = None
+            requestData.pop(key, None)
+    for key in requestData.copy():
+        db.installations.update({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
+            key: requestData[key]
+        }})
+    # for key, value in requestData.items():
+    #     db.products.save({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
+    #         key: requestData[key]
+    #     }})
+    return "Data Updated Successfully", 200
+@app.route('/installations/<id>/delete',methods=["DELETE"])
+def delete_installation(id):
+    db.installations.delete_one({"_id": bson.ObjectId(oid=str(id))})
+    return "Deleted",200

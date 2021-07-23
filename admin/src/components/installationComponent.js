@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { Component } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import UpdateInstallation from "./updateInstallation";
+import Installations from './installations'
 export default class installationComponent extends Component {
   constructor(props) {
     super(props);
@@ -57,13 +58,16 @@ export default class installationComponent extends Component {
                 >
                   <Form.Control type="text" placeholder="Image Link" />
                 </Form.Group>
-                <Button type="submit">Add</Button>
+                <Button variant="secondary" type="submit">Add</Button>
               </Form>
             </Col>
-            <Col>
+            <Col className="text-center">
               <UpdateInstallation />
             </Col>
           </Row>
+
+            <Installations/>
+
         </Container>
       </div>
     );

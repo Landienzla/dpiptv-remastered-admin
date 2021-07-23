@@ -8,6 +8,7 @@ import Panel from "./components/panel";
 import Products from "./components/productsComponent"
 import Installation from "./components/installationComponent"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import supportComponent from "./components/supportComponent";
 
 // import * as Icon from 'bootstrap-icons'
 function App() {
@@ -24,6 +25,7 @@ function App() {
           />
           <Route path="/products"  render={(props) => <Products {...props} user={user}/>}/>
           <Route path="/installation" component={Installation}/>
+          <Route path="/support" component={supportComponent}/>
         </Switch>
       </Router>
     </div>
