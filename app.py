@@ -1,20 +1,32 @@
+from dns.message import Message
 from flask import Flask, request
 from flask.globals import request
 from flask.helpers import make_response
 from flask.json import jsonify
 from flask_pymongo import PyMongo
 from flask_cors import CORS
+from flask_mail import Mail, Message
 import json
 import bson
 import copy
 import pymongo
 import datetime
 from pymongo.message import update
+
+
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb+srv://landienzla:5513@cluster0.irgw0.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 CORS(app)
 mongo = PyMongo(app)
 db = mongo.db
+
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'landienzla@gmail.com'
+app.config['MAIL_PASSWORD'] = ""
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 
 
 @app.route('/')
@@ -130,6 +142,27 @@ def request_support():
     return "request support", 200
 
 
+@app.route('/support/request/<id>/solve', methods=["POST"])
+def solve_support(id):
+    requestData = json.loads(request.data)
+    requestOwner = db.supportRequests.find_one({"_id": bson.ObjectId(oid=str(id))})
+    db.supportRequests.update({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
+        "Status": "Solved",
+        "updatedAt": datetime.datetime.now(),
+        "MessagefromAdmin": requestData["Message"],
+    }})
+    try:
+        msg = Message("Your Problem Solved By DPIPTV",
+                      sender="landienzla@gmail.com",
+                      recipients=requestOwner["Email"])
+        msg.body = requestData["MessagefromAdmin"]
+        mail.send(msg)
+        print(requestData[Message])
+        return 'Problem Solved'
+    except Exception as e:
+        return(str(e))
+
+
 @app.route('/testlink/get', methods=["POST"])
 def get_testlink():
     requestData = json.loads(request.data)
@@ -184,7 +217,9 @@ def update_installation(id):
     #         key: requestData[key]
     #     }})
     return "Data Updated Successfully", 200
-@app.route('/installations/<id>/delete',methods=["DELETE"])
+
+
+@app.route('/installations/<id>/delete', methods=["DELETE"])
 def delete_installation(id):
     db.installations.delete_one({"_id": bson.ObjectId(oid=str(id))})
-    return "Deleted",200
+    return "Deleted", 200
