@@ -24,9 +24,10 @@ db = mongo.db
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'landienzla@gmail.com'
-app.config['MAIL_PASSWORD'] = ""
+app.config['MAIL_PASSWORD'] = ''
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
 
 @app.route('/')
@@ -145,22 +146,19 @@ def request_support():
 @app.route('/support/request/<id>/solve', methods=["POST"])
 def solve_support(id):
     requestData = json.loads(request.data)
-    requestOwner = db.supportRequests.find_one({"_id": bson.ObjectId(oid=str(id))})
+    requestOwner = db.supportRequests.find_one(
+        {"_id": bson.ObjectId(oid=str(id))})
     db.supportRequests.update({"_id": bson.ObjectId(oid=str(id))}, {'$set': {
         "Status": "Solved",
         "updatedAt": datetime.datetime.now(),
         "MessagefromAdmin": requestData["Message"],
     }})
-    try:
-        msg = Message("Your Problem Solved By DPIPTV",
-                      sender="landienzla@gmail.com",
-                      recipients=requestOwner["Email"])
-        msg.body = requestData["MessagefromAdmin"]
-        mail.send(msg)
-        print(requestData[Message])
-        return 'Problem Solved'
-    except Exception as e:
-        return(str(e))
+    msg = Message("Your Problem Solved By DPIPTV",
+                  sender="DPIPTV",
+                  recipients=[requestOwner["Email"]])
+    msg.body = f'Hi {requestOwner["Name"]} {requestData["Message"]}'
+    mail.send(msg)
+    return 'Problem Solved'
 
 
 @app.route('/testlink/get', methods=["POST"])

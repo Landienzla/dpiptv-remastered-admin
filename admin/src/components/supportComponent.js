@@ -39,13 +39,13 @@ export default class supportComponent extends Component {
       )
       .then((resp) => console.log(resp))
       .catch((err) => console.log(err));
-  }
+  };
   handleChange = (e) => {
     const { id, value } = e.target;
     this.setState({
       solvedRequestData: { ...this.state.solvedRequestData, [id]: value },
     });
-    console.log(this.state.solvedRequestData)
+    console.log(this.state.solvedRequestData);
   };
   render() {
     return (
@@ -84,13 +84,15 @@ export default class supportComponent extends Component {
                           onChange={this.handleChange}
                         />
                       </Form.Group>
-                      <Button type="submit" variant="secondary">Send</Button>
+                      <Button type="submit" variant="secondary">
+                        Send
+                      </Button>
                     </Form>
                   </div>
                 ))}
           </div>
         </Container>
-
+        <h3 className="m-3">Support Requests</h3>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -103,7 +105,7 @@ export default class supportComponent extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.supportRequests.map((request) => (
+            {this.state.supportRequests.filter(request=>request.Status.includes("Waiting")).map((request) => (
               <tr
                 onClick={() => {
                   if (this.state.showRequestMessage === true) {
@@ -137,6 +139,39 @@ export default class supportComponent extends Component {
                 >
                   Solve
                 </Button>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+        <h3>Solved Requests</h3>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Reason</th>
+              <th>Message</th>
+              <th>Created At</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.state.supportRequests.filter(request => request.Status.includes("Solved")).map((request) => (
+              <tr
+                onClick={() => {
+                  if (this.state.showRequestMessage === true) {
+                    this.setState({ showRequestMessage: false });
+                  } else {
+                    this.setState({ showRequestMessage: true });
+                  }
+                }}
+              >
+                <td>{request.Name}</td>
+                <td>{request.Email}</td>
+                <td>{request.Reason}</td>
+                <td>{request.Message}</td>
+                <td>{request.createdAt}</td>
+                <td style={{backgroundColor: "green"}}>{request.Status}</td>
               </tr>
             ))}
           </tbody>
